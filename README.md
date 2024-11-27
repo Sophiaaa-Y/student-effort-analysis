@@ -1,30 +1,26 @@
-# Starter folder
+# Exploring the Drivers of Academic Effort: A Bayesian Analysis of Email-Based Interventions and Behavioral Changes
 
 ## Overview
 
-This repo provides students with a foundation for their own projects associated with *Telling Stories with Data*. You do not need every aspect for every paper and you should delete aspects that you do not need.
+This GitHub Repository contains all files used to generate the paper Exploring the Exploring the Drivers of Academic Effort: A Bayesian Analysis of Email-Based Interventions and Behavioral Changes. The study analyzes how changes in emotional states, perceived cognitive competence, difficulty perception, intrinsic interest, and email intervention types influence changes in student effort following an email-based intervention. The results reveal that increased emotional engagement, intrinsic interest, and receiving more engaging ("Interesting") emails positively impact student effort, while higher difficulty perception is associated with reduced effort. The repository provides a comprehensive framework for data analysis, modeling, and reporting using Bayesian statistical methods, and the data is obtained from [Nudge Data Repository](https://github.com/ntaback/nudgedata).
 
 
 ## File Structure
 
 The repo is structured as:
 
--   `data/raw_data` contains the raw data as obtained from X.
--   `data/analysis_data` contains the cleaned dataset that was constructed.
--   `model` contains fitted models. 
--   `other` contains relevant literature, details about LLM chat interactions, and sketches.
--   `paper` contains the files used to generate the paper, including the Quarto document and reference bibliography file, as well as the PDF of the paper. 
--   `scripts` contains the R scripts used to simulate, download and clean data.
+-   `data/00-simulated_data` Contains simulated datasets created for testing.
+-   `data/01-raw_data` contains the raw data as obtained from the [Nudge Data Repository](https://github.com/ntaback/nudgedata).
+-   `data/02-analysis_data` contains the cleaned data used in this analysis.
+-   `models` contains fitted Bayesian Multiple Linear Regression model. 
+-   `other/datasheet` Contains a detailed datasheet for the datasets used, outlining key metadata, provenance, preprocessing steps, and other relevant documentation to ensure transparency and reproducibility.
+-   `other/literature` contains copies of references used in the analysis.
+-   `other/llm_usage` contains the entire chat history with ChatGPT-4o.
+-   `other/sketches` contains sketches of the data and Bayesian model, and visualizations that used in this study.
+-   `paper` contains a PDF version of the final paper, the Quarto file used to create the PDF, and a file containing the references for the paper.
+-   `scripts` contains R scripts for data simulation, downloading, cleaning, testing, EDA, and modeling.
 
 
 ## Statement on LLM usage
 
-Aspects of the code were written with the help of the auto-complete tool, Codriver. The abstract and introduction were written with the help of ChatHorse and the entire chat history is available in inputs/llms/usage.txt.
-
-## Some checks
-
-- [ ] Change the rproj file name so that it's not starter_folder.Rproj
-- [ ] Change the README title so that it's not Starter folder
-- [ ] Remove files that you're not using
-- [ ] Update comments in R scripts
-- [ ] Remove this checklist
+Some aspects of this project are generated with help from ChatGPT-4o such as code, visualizations, and paragraphs. The entire chat history is available in `other/llm/usage.txt`.

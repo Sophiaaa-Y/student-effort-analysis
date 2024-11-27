@@ -391,19 +391,25 @@ These findings provide actionable insights into designing and prioritizing educa
 
 # Discussion {#sec-discussion}
 
-## First discussion point
+## Overall Discussion
 
-If my paper were 10 pages, then should be be at least 2.5 pages. The discussion is a chance to show off what you know and what you learnt from all this. 
+This paper investigates the determinants of changes in student effort following email-based interventions, employing a Bayesian regression model to explore the relationships between multiple predictors and behavioral outcomes. By focusing on changes in emotional states, cognitive competence, perceived difficulty, intrinsic interest, and email type, this study uncovers patterns that provide critical insights into strategies for enhancing academic engagement and motivation. 
 
-## Second discussion point
+## Extensive Understanding of Variable Selection
 
-Please don't use these as sub-heading labels - change them to be what your point actually is.
+This study carefully evaluates the contributions of key variables—emotional affect, cognitive competence, difficulty perception, intrinsic interest, and email type—to changes in student effort. The findings emphasize that variables such as `Change in Affect` with mean equals to 0.25 and `Change in Interest` with mean equals to 0.30 have the most significant positive effects on student effort, underscoring the importance of emotional and motivational engagement in driving behavioral change. The positive effect of Change in Cognitive Competence with mean equals to 0.12 further supports the view that fostering self-confidence in learning abilities enhances persistence and effort. However, `Change in Difficulty Perception` with mean equals to -0.05 shows a small but negative effect, suggesting that while reducing perceived difficulty can help, the impact may be limited. This aligns with theories that moderate challenges can encourage effort without demotivating students. Besides, the variable `Email Type (Interesting)` with mean equals to 0.15 shows the importance of engaging and creative communication strategies in influencing student behavior, suggesting practical ways to implement low-cost but effective interventions.
 
-## Third discussion point
+## Implications of Variable Selection
 
-## Weaknesses and next steps
+The results of this study shows significant implications for designing interventions to promote student engagement. The credible intervals of the coefficients shows the relative stability and uncertainty of each predictor's effect, offering a robust foundation for targeted strategies. For example, the narrow intervals for `Change in Affect` and `Change in Interest` confirm their critical roles in enhancing effort, while the wider intervals for `Change in Difficulty Perception` suggest its influence may depend on contextual factors such as course difficulty or student background. Besides, the `intercept` term with mean equals to -1.2 emphasizes the baseline level of effort in the absence of positive changes in predictors, suggesting a pressing need for proactive interventions to counteract low effort levels. These findings support the development of multi-faceted strategies that combine emotional and cognitive support with engaging communication techniques to foster lasting improvements in academic motivation and effort.
 
-Weaknesses and next steps should also be included.
+## Limitations
+
+This study has several limitations that should be considered when interpreting the findings. Firstly, the analysis is constrained by the variables included in the dataset, which may not fully capture the complexity of factors influencing student effort. For example, external influences such as peer interactions, parental support, or classroom dynamics were not measured, potentially omitting significant determinants of engagement. Secondly, the reliance on self-reported measures for variables like emotional states and cognitive competence introduces the possibility of response bias, which could affect the validity of the results. Additionally, while the Bayesian framework provides robust insights into the effects of predictors, the generalizability of these findings may be limited to similar academic and cultural contexts. Lastly, the model assumes linear relationships between predictors and changes in effort, which may oversimplify more nuanced, non-linear dynamics.
+
+## Next Steps
+
+To address these limitations, future research should expand the scope of analysis by incorporating additional variables that capture a broader range of influences on student effort. This could include external factors such as socioeconomic background, classroom environment, or peer networks. Employing longitudinal designs could help evaluate the long-term effects of interventions, providing insights into the sustainability of changes in effort over time. Future studies should also explore potential non-linear interactions among predictors to better understand their complex interdependencies. Furthermore, incorporating experimental designs or randomized control trials could strengthen causal inferences regarding the effects of email-based interventions. Finally, adapting and validating the model across diverse educational and cultural settings would enhance the generalizability of the findings and inform context-specific strategies to improve student engagement.
 
 \newpage
 
@@ -414,6 +420,8 @@ Weaknesses and next steps should also be included.
 
 
 # Additional data details {#sec-data-details}
+
+@tbl-summary-stats presents descriptive statistics for key variables in the dataset, detailing the average changes and variability in effort, affect, cognitive competence, difficulty perception, and interest. The table showcases both mean values and standard deviations, providing insight into the central tendencies and dispersion within each variable. These statistics highlight notable patterns, such as the negative average change in effort and interest, paired with substantial variability, which underscores the nuanced impact of the intervention across different dimensions of student engagement.
 
 ```{r}
 #| warning: false
@@ -443,15 +451,15 @@ model_data %>%
   ) %>%
   knitr::kable(booktabs = TRUE, align = "c")
 ```
-@tbl-summary-stats presents descriptive statistics for key variables in the dataset, detailing the average changes and variability in effort, affect, cognitive competence, difficulty perception, and interest. The table showcases both mean values and standard deviations, providing insight into the central tendencies and dispersion within each variable. These statistics highlight notable patterns, such as the negative average change in effort and interest, paired with substantial variability, which underscores the nuanced impact of the intervention across different dimensions of student engagement.
+
 
 # Model details {#sec-model-details}
 
 ## Posterior predictive check
 
-In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. This shows...
+In @fig-ppcheck-and-posteriorvs-prior-1 we implement a posterior predictive check. This shows how well the Bayesian multiple linear model aligns with the observed data. The plot compares the actual observed data *y* with the replicated data *y_rep* generated from the posterior predictive distribution. The lines of posterior predictions closely match the observed data distribution, demonstrating that the model accurately captures the variability and central tendencies of the data. This indicates a good model fit and suggests that the model effectively predicts the outcomes based on the included predictors.
 
-In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows... 
+In @fig-ppcheck-and-posteriorvs-prior-2 we compare the posterior with the prior. This shows how the data influenced the parameter estimates. The posterior distributions, represented as narrower and more defined intervals, show significant deviations from the broad and less informative priors, indicating a strong data-driven influence on the parameter estimates. This comparison emphasizes the importance of incorporating data into Bayesian analysis to refine prior assumptions and draw meaningful, evidence-based conclusions from the model.
 
 ```{r}
 #| eval: true
@@ -476,9 +484,9 @@ posterior_vs_prior(change_effort_model) +
 
 ## Diagnostics
 
-@fig-stanareyouokay-1 is a trace plot. It shows... This suggests...
+@fig-stanareyouokay-1 is a trace plot. It shows a visual assessment of the convergence of the MCMC algorithm. The plots indicate stable and well-mixed chains for all parameters, with no noticeable trends or drifts over iterations. The consistent fluctuations around the mean suggest that the chains have adequately explored the posterior distribution, providing robust estimates for the model parameters.
 
-@fig-stanareyouokay-2 is a Rhat plot. It shows... This suggests...
+@fig-stanareyouokay-2 is a Rhat plot. It verifies the convergence of the MCMC chains. All parameters show Rhat values close to 1.0, well within the acceptable threshold of 1.05. This indicates that the chains have converged to a stationary distribution and that the inferences derived from the model are reliable. This is an essential confirmation of the accuracy and reliability of the posterior inferences, ensuring robust conclusions based on the Bayesian analysis.
 
 ```{r}
 #| echo: false
