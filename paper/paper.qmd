@@ -6,7 +6,7 @@ author:
 thanks: "Code and data are available at: [https://github.com/Sophiaaa-Y/student-effort-analysis](https://github.com/Sophiaaa-Y/student-effort-analysis.git)."
 date: today
 date-format: long
-abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
+abstract: "Student engagement is an important determinant of academic success, shaped by emotional, cognitive, and motivational factors that influence effort and persistence. This study uses a Bayesian multiple linear regression model to examine how changes in emotional states, perceived cognitive competence, task difficulty, intrinsic interest, and email intervention types collectively affect student effort following an email-based academic intervention. The analysis shows that while emotional and motivational factors, particularly changes in affect and interest, significantly influence effort, perceptions of task difficulty play a nuanced role, emphasizes the importance of addressing challenges without demotivating students. These findings provide practical perspectives on designing cost-effective, personalized interventions to promote academic motivation, emphasizing the importance of integrating emotional and cognitive dimensions into educational strategies."
 format: pdf
 number-sections: true
 bibliography: references.bib
@@ -31,15 +31,15 @@ library(bayesplot)
 
 ## Introduction
 
-1. Overview paragraph
+Student engagement is a crucial determinant of academic success, influenced by a range of emotional, cognitive, and behavioral factors that shape how students interact with educational tasks [@kahu2018student] [@wang2014staying]. Emotional aspects, such as feelings and interests, are known to drive motivation [@trautwein2015using], while cognitive components, including self-perceived competence and task difficulty, play a significant role in academic persistence and performance [@mac1991explaining] [@akbari2020students]. Additionally, external interventions like personalized email interventions have been increasingly utilized to influence student behaviors and attitudes toward learning tasks [@chevalier2014making] [@goes2016incentive]. This study analyses how various emotional, cognitive, and motivational predictors collectively influence changes in student effort in response to email-based interventions.
 
-2. Estimand paragraph
+Building upon the existing literature on student engagement and targeted interventions [@wang2014staying], this study delves into the complex interplay of emotional, cognitive, and motivational predictors that influence changes in student effort following an email-based academic intervention. Through the examination of a sampled subset of over 600 records of student engagement data, this research analyzes variables such as changes in feeling states, perceived cognitive competence, task difficulty perception, intrinsic interest, and the type of email intervention received, adopting a Bayesian multiple linear regression model to explore these relationships. The modeling approach, implemented using the `rstanarm` package in R [@rstanarm], enables a valuable evaluation of the conditional relationships between these predictors and variations in student effort. While prior studies, such as @mac1991explaining and @chevalier2014making, have investigated these factors individually, their combined effects within the context of a targeted intervention remain under-explored. This study not only quantifies the influence of each factor but also offers nuanced understanding on how these dimensions interact to shape behavioral responses, providing a statistically rigorous framework for understanding student engagement strategies.
 
-3. Results paragraph
+Our findings emphasizes a deliberate focus on leveraging feelings, cognitive, and motivational dimensions to influence changes in student effort following email-based interventions. The analysis emphasizes that positive shifts in emotional states, such as increased interest and affect, played an important role in fostering sustained engagement. Cognitive competence, reflecting students' confidence in their abilities, is similarly instrumental in encouraging perseverance. On the other hand, perceived difficulty showed a nuanced impact, suggesting that while challenges can motivate effort, excessive difficulty may hinder engagement. The inclusion of engaging email types further amplified the intervention's effectiveness, demonstrating that strategic communication can significantly enhance student motivation and academic effort.
 
-4. Why it matters paragraph
+The significance of these insights extends beyond understanding individual predictors, providing practical implications for designing interventions that enhance academic engagement and motivation. These findings provide a foundation for developing evidence-based strategies that leverage emotional and cognitive support alongside personalized communication, offering valuable and cost-effective solutions for educational contexts. Furthermore, this study contributes to the broader academic discourse on how targeted interventions can address systemic challenges in student engagement, enriching ongoing discussions in the field of educational psychology and behavioral science, as @pajares2001toward and @winne2010psychology explored. 
 
-The study aims to provide a clear and detailed analysis of the factors influencing changes in student effort following email-based interventions. The remainder of this paper is structured as follows. The @sec-intro includes the introduction part of this study, and the @sec-data outlines the data that we used in the study, and describes the sources of the dataset, the behavioral and performance variables selected for analysis, and the reason reasons behind the choice. @sec-model introduces the Bayesian multiple linear regression model that we used to analyze the relationships between students' effort and predictors such as emotional shifts, cognitive competence, difficulty perception, intrinsic interest, and email type, which provide a statistical framework to understand how they influence students' effort. In @sec-results, it shows the findings from the Bayesian multiple linear regression model, including statistical summaries and graphical representations of the model's outcomes, which show details about how different factors contributed positively or negatively to variations in effort. Besides, @sec-discussion interprets these results in the context of email interventions, discusses limitations of the study, and suggests directions for future research to enhance understanding of student engagement. Finally, additional details about the dataset and its processing are included in @sec-data-details, and @sec-model-details includes diagnostic plots and posterior predictive checks to evaluate the model's reliability.
+This paper is structured as follows. The @sec-intro includes the introduction part of this study, and the @sec-data outlines the data that we used in the study, and describes the sources of the dataset, the behavioral and performance variables selected for analysis, and the reason reasons behind the choice. @sec-model introduces the Bayesian multiple linear regression model that we used to analyze the relationships between students' effort and predictors such as emotional shifts, cognitive competence, difficulty perception, intrinsic interest, and email type, which provide a statistical framework to understand how they influence students' effort. In @sec-results, it shows the findings from the Bayesian multiple linear regression model, including statistical summaries and graphical representations of the model's outcomes, which show details about how different factors contributed positively or negatively to variations in effort. Besides, @sec-discussion interprets these results in the context of email interventions, discusses limitations of the study, and suggests directions for future research to enhance understanding of student engagement. Finally, additional details about the dataset and its processing are included in @sec-data-details, @sec-model-details includes diagnostic plots and posterior predictive checks to evaluate the model's reliability, and @sec-idealized-methodology provides an in-depth exploration of survey and observational data methodology, linking to relevant literature and including simulations to contextualize and validate the study's approach.
 
 ## Estimand
 
@@ -50,7 +50,7 @@ This study aims to identify the factors influencing changes in students' study e
 
 ## Overview
 
-The dataset used in this study was sourced from the [Nudge Data Repository](https://github.com/ntaback/nudgedata), which examines the effects of behavioral nudges on students' academic performance and engagement. It focuses on the effects of behavioral nudges, specifically email interventions, on student engagement and academic performance. This dataset captures changes in effort, affect, cognition, difficulty perception, and interest, alongside final exam scores.
+The dataset used in this study was sourced from the [Nudge Data Repository][@taback_effect_of_nudge], which examines the effects of behavioral nudges on students' academic performance and engagement. It focuses on the effects of behavioral nudges, specifically email interventions, on student engagement and academic performance. This dataset captures changes in effort, affect, cognition, difficulty perception, and interest, alongside final exam scores.
 
 ## Measurement
 
@@ -198,7 +198,7 @@ The broader spread and more extreme outliers in the "Interesting" email group co
 
 ## Justification
 
-The variables chosen for this study were carefully selected based on their relevance to understanding the factors influencing changes in student effort, as captured in the dataset from the [Nudge Data Repository](https://github.com/ntaback/nudgedata). Each variable provides critical insights into different dimensions of behavioral and academic outcomes:
+The variables chosen for this study were carefully selected based on their relevance to understanding the factors influencing changes in student effort, as captured in the dataset from the [Nudge Data Repository][@taback_effect_of_nudge]. Each variable provides critical insights into different dimensions of behavioral and academic outcomes:
 
 - **change_affect:** Tracks shifts in students' emotional states pre-intervention and post-intervention, showing how interventions influence feelings about academic tasks. Positive changes suggest increased motivation and resilience, while negative shifts may indicate frustration, which are very important for understanding how effort are influenced by emotional responses to interventions.
 - **change_cog:** This means change in cognitive competence, which measures changes in students’ perceived learning ability, providing insights into confidence and self-efficacy. Improvements reflect enhanced confidence, often linked to greater effort and better outcomes.
@@ -285,8 +285,6 @@ We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. The de
 
 
 # Results {#sec-results}
-
-## Model Justification
 
 The analysis revealed distinct patterns in how changes in student effort were influenced by various predictors, with shifts in affect, cognitive competence, and intrinsic interest playing critical roles. @tbl-model-summary summarizes the model's coefficients and their credible intervals, highlighting the relative importance of each predictor in explaining changes in effort.
 
@@ -421,6 +419,12 @@ To address these limitations, future research should expand the scope of analysi
 
 # Additional data details {#sec-data-details}
 
+## Data Cleaning Notes
+
+////////
+
+## Additional Tables
+
 @tbl-summary-stats presents descriptive statistics for key variables in the dataset, detailing the average changes and variability in effort, affect, cognitive competence, difficulty perception, and interest. The table showcases both mean values and standard deviations, providing insight into the central tendencies and dispersion within each variable. These statistics highlight notable patterns, such as the negative average change in effort and interest, paired with substantial variability, which underscores the nuanced impact of the intervention across different dimensions of student engagement.
 
 ```{r}
@@ -452,8 +456,36 @@ model_data %>%
   knitr::kable(booktabs = TRUE, align = "c")
 ```
 
+@tbl-model-results provides an overview of the Bayesian regression model for predicting changes in student effort. 
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: false
+#| label: tbl-model-results
+#| tbl-cap: "Bayesian Regression Model Summary for Predicting Changes in Effort"
+
+modelsummary::modelsummary(
+  list(
+    "Change Effort Model" = change_effort_model
+  ),
+  statistic = "mad",
+  fmt = 2
+)
+```
+
 
 # Model details {#sec-model-details}
+
+## Model Justification
+
+The Bayesian multiple linear regression model is chosen for this study due to its flexibility and capacity to incorporate prior knowledge, which is particularly valuable when working with nuanced predictors like those in this dataset. The predictors—Change in Affect, Change in Cognitive Competence, Change in Difficulty Perception, Change in Interest, and Email Type (Interesting)—are diverse in scale and expected influence, requiring a strong analytically framework capable of capturing both central tendencies and credible intervals for the estimated effects.
+
+Bayesian multiple linear regression mode allows for a probabilistic interpretation of the model coefficients, such as the mean effect of Change in Affect (Mean = 0.25) on student effort, alongside credible intervals that reflect the uncertainty surrounding these estimates. For example, the 90% credible interval for Change in Affect (0.10 to 0.40) provides a comprehensive understanding of its potential impact.
+
+This model is also ideal for examining small or context-dependent effects, such as the slightly negative relationship observed for Change in Difficulty Perception (Mean = -0.05). The Bayesian framework supports weakly informative priors (e.g., $\beta_j \sim \text{Normal}(0, 2.5)$) to stabilize estimates for variables with smaller or ambiguous effects, ensuring that the results remain interpretable and reliable.
+
+Additionally, Bayesian methods enable posterior predictive checks, ensuring that the model captures observed variations in effort changes while accounting for the inherent variability in educational data. The choice of this model is further justified by its ability to analyze variables that interact in complex ways, providing nuanced insights into how emotional, cognitive, and motivational factors collectively influence behavioral changes in response to email-based interventions.
 
 ## Posterior predictive check
 
@@ -482,6 +514,8 @@ posterior_vs_prior(change_effort_model) +
   coord_flip()
 ```
 
+\newpage
+
 ## Diagnostics
 
 @fig-stanareyouokay-1 is a trace plot. It shows a visual assessment of the convergence of the MCMC algorithm. The plots indicate stable and well-mixed chains for all parameters, with no noticeable trends or drifts over iterations. The consistent fluctuations around the mean suggest that the chains have adequately explored the posterior distribution, providing robust estimates for the model parameters.
@@ -503,8 +537,11 @@ plot(change_effort_model, "trace")
 plot(change_effort_model, "rhat")
 ```
 
+
+# Surveys, Sampling, and Observational Data {#sec-idealized-methodology}
+
+Change!!!
+
 \newpage
 
 # References
-
-
