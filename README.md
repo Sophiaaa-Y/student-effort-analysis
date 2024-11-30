@@ -1,4 +1,4 @@
-# Exploring the Drivers of Academic Effort: A Bayesian Analysis of Email-Based Interventions and Behavioral Changes
+# Exploring the Impact of Encouragement and Student Behaviour on Academic Effort in Second-year Statistics Courses
 
 ## Overview
 
