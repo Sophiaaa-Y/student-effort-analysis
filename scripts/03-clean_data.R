@@ -69,21 +69,27 @@ analysis_data <- raw_data %>%
   ) %>%
 
   # Select relevant columns
-  select(`id`, `email`, `change_affect`, `change_cog`, `change_difficulty`, `change_interest`, 
+  select(`email`, `change_affect`, `change_cog`, `change_difficulty`, `change_interest`, 
          `change_effort`) %>%
+  # Renaming the column names
+  rename(
+    `change in affect` = `change_affect`,
+    `change in cognitive competence` = `change_cog`,
+    `change in difficulty` = `change_difficulty`, 
+    `change in interest` = `change_interest`, 
+    `change in effort` = `change_effort`
+  ) %>%
   
   # Key Variables:
-  # - `id`: A unique sequential identifier assigned to each row in the analysis data.
   # - `email`: The style of email received by the student, which purpose is to try to motivate learning and improve score. 
   #    This is categorized as "Plain" or "Interesting".
-  # - `change_affect`: Change in affect level before and after the intervention.
-  # - `change_cog`: Change in cognitive competence level before and after the intervention.
-  # - `change_difficulty`: Change in difficulty level before and after the intervention.
-  # - `change_interest`: Change in interest level before and after the intervention.
-  # - `change_effort`: Change in effort level before and after the intervention.
+  # - `change in affect`: Change in affect level before and after the intervention.
+  # - `change in cognitive competence`: Change in cognitive competence level before and after the intervention.
+  # - `change in difficulty`: Change in difficulty level before and after the intervention.
+  # - `change in interest`: Change in interest level before and after the intervention.
+  # - `change in effort`: Change in effort level before and after the intervention.
     
-  drop_na() %>%
-  mutate(id = row_number())
+  drop_na()
     
 #### Save data ####
 write_parquet(analysis_data, "data/02-analysis_data/analysis_data.parquet")

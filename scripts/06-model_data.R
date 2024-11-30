@@ -14,16 +14,15 @@ library(tidyverse)
 library(rstanarm) # Load the rstanarm package for Bayesian modeling
 library(arrow)    # Load the arrow package to read Parquet files
 library(dplyr)    # Load dplyr for data manipulation
-library(here)     # Load here for relative file paths
 
 #### Read data ####
-model_data <- read_parquet(here::here("data/02-analysis_data/analysis_data.parquet"))
+model_data <- read_parquet("data/02-analysis_data/analysis_data.parquet")
 
 ### Model data ####
 # Fit a Bayesian linear regression model
 set.seed(569) # Ensure reproducibility
 change_effort_model <- stan_glm(
-  formula = change_effort ~ change_affect + change_cog + change_difficulty + change_interest + email,
+  formula = `change in effort` ~ `change in affect` + `change in cognitive competence` + `change in difficulty` + `change in interest` + `email`,
   data = model_data,
   family = gaussian(),       # Use Gaussian family for linear regression
   prior = normal(0, 2.5),    # Weakly informative normal prior for coefficients

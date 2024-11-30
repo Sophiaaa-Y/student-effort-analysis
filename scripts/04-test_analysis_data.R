@@ -10,43 +10,41 @@
 
 
 #### Workspace setup ####
-library(tidyverse)
-library(testthat)
 library(arrow)
-library(here)
+library(testthat)
 
 #### Test Data ####
 
 # Load the analysis dataset
-test_analysis_data <- read_parquet(here::here("data/02-analysis_data/analysis_data.parquet"))
+test_analysis_data <- read_parquet("data/02-analysis_data/analysis_data.parquet")
+
+# Test if the dataset was successfully loaded
+test_that("Dataset is successfully loaded", {
+  expect_true(exists("test_analysis_data"), 
+              info = "The dataset could not be loaded.")
+})
 
 # Test that the dataset has 622 rows - there are 622 students
 test_that("dataset has 622 rows", {
   expect_equal(nrow(test_analysis_data), 622)
 })
 
-# Test that the dataset has 8 columns
-test_that("dataset has 7 columns", {
-  expect_equal(ncol(test_analysis_data), 7)
+# Test that the dataset has 6 columns
+test_that("dataset has 6 columns", {
+  expect_equal(ncol(test_analysis_data), 6)
 })
 
 # Test that the dataset has the correct columns
 test_that("dataset has all required columns", {
-  expected_columns <- c("id", "email", "change_affect", 
-                        "change_cog", "change_difficulty", "change_interest", 
-                        "change_effort")
+  expected_columns <- c("email", "change in affect", 
+                        "change in cognitive competence", "change in difficulty", "change in interest", 
+                        "change in effort")
   expect_equal(sort(names(test_analysis_data)), sort(expected_columns))
 })
 
 # Test that there are no missing values in dataset
 test_that("no missing values in dataset", {
   expect_true(all(!is.na(test_analysis_data)))
-})
-
-# Test that the `id` column is unique and sequential
-test_that("id column is unique and sequential", {
-  expect_equal(n_distinct(test_analysis_data$id), nrow(test_analysis_data))
-  expect_true(all(diff(test_analysis_data$id) == 1))
 })
 
 # Test that the `email` column contains only valid types
@@ -57,26 +55,26 @@ test_that("email column contains valid types", {
 
 # Test that all change variables are numeric
 test_that("change variables are numeric", {
-  change_columns <- c("change_affect", "change_cog", "change_difficulty", 
-                      "change_interest", "change_effort")
+  change_columns <- c("change in affect", "change in cognitive competence", "change in difficulty", 
+                      "change in interest", "change in effort")
   for (col in change_columns) {
     expect_type(test_analysis_data[[col]], "double")
   }
 })
 
-# Test that `change_*` columns are not excessively large or small
+# Test that `change in*` columns are not excessively large or small
 test_that("change variables have reasonable values", {
-  change_columns <- c("change_affect", "change_cog", "change_difficulty", 
-                      "change_interest", "change_effort")
+  change_columns <- c("change in affect", "change in cognitive competence", "change in difficulty", 
+                      "change in interest", "change in effort")
   for (col in change_columns) {
     expect_true(all(test_analysis_data[[col]] >= -6 & test_analysis_data[[col]] <= 6))
   }
 })
 
-# Test that `change_*` variables are rounded to two decimal places
+# Test that `change in*` variables are rounded to two decimal places
 test_that("change variables are rounded to two decimal places", {
-  change_columns <- c("change_affect", "change_cog", "change_difficulty", 
-                      "change_interest", "change_effort")
+  change_columns <- c("change in affect", "change in cognitive competence", "change in difficulty", 
+                      "change in interest", "change in effort")
   for (col in change_columns) {
     expect_true(all(test_analysis_data[[col]] == round(test_analysis_data[[col]], 2)))
   }

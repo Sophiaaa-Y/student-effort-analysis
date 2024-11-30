@@ -11,13 +11,12 @@
 
 #### Workspace setup ####
 library(tidyverse)
-library(here)
 library(arrow)
 
 #### Exploratory Data Analysis ####
 
 # Load the analysis data
-analysis_data <- read_parquet(here::here("data/02-analysis_data/analysis_data.parquet"))
+analysis_data <- read_parquet("data/02-analysis_data/analysis_data.parquet")
 
 # Overview of the dataset
 cat("Dataset dimensions:", nrow(analysis_data), "rows and", ncol(analysis_data), "columns.\n")
@@ -25,7 +24,7 @@ glimpse(analysis_data)
 
 # Combine all histograms into one graph with facets
 analysis_data_distribution <- analysis_data %>%
-  select(change_effort, change_affect, change_cog, change_difficulty, change_interest) %>%
+  select(`change in effort`, `change in affect`, `change in cognitive competence`, `change in difficulty`, `change in interest`) %>%
   pivot_longer(cols = everything(), names_to = "Variable", values_to = "Variables_values")
 
 # Create the combined histogram
@@ -40,7 +39,7 @@ ggplot(analysis_data_distribution, aes(x = Variables_values)) +
   theme_minimal()
 
 # Scatterplot of `change_effort` vs `change_affect` with regression line
-ggplot(analysis_data, aes(x = change_affect, y = change_effort)) +
+ggplot(analysis_data, aes(x = `change in affect`, y = `change in effort`)) +
   geom_point(alpha = 0.6, color = "blue") +
   geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
   labs(
@@ -51,7 +50,7 @@ ggplot(analysis_data, aes(x = change_affect, y = change_effort)) +
   theme_minimal()
 
 # Scatterplot of `change_effort` vs `change_cog` with regression line
-ggplot(analysis_data, aes(x = change_cog, y = change_effort)) +
+ggplot(analysis_data, aes(x = `change in cognitive competence`, y = `change in effort`)) +
   geom_point(alpha = 0.6, color = "darkgreen") +
   geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
   labs(
@@ -62,7 +61,7 @@ ggplot(analysis_data, aes(x = change_cog, y = change_effort)) +
   theme_minimal()
 
 # Scatterplot of `change_effort` vs `change_difficulty` with regression line
-ggplot(analysis_data, aes(x = change_difficulty, y = change_effort)) +
+ggplot(analysis_data, aes(x = `change in difficulty`, y = `change in effort`)) +
   geom_point(alpha = 0.6, color = "orange") +
   geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
   labs(
@@ -73,7 +72,7 @@ ggplot(analysis_data, aes(x = change_difficulty, y = change_effort)) +
   theme_minimal()
 
 # Scatterplot of `change_effort` vs `change_interest` with regression line
-ggplot(analysis_data, aes(x = change_interest, y = change_effort)) +
+ggplot(analysis_data, aes(x = `change in interest`, y = `change in effort`)) +
   geom_point(alpha = 0.6, color = "red") +
   geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
   labs(
@@ -84,8 +83,9 @@ ggplot(analysis_data, aes(x = change_interest, y = change_effort)) +
   theme_minimal()
 
 # Boxplot of `change_effort` by `email`
-ggplot(analysis_data, aes(x = email, y = change_effort, fill = email)) +
+ggplot(analysis_data, aes(x = email, y = `change in effort`, fill = email)) +
   geom_boxplot(alpha = 0.8) +
+  geom_jitter(alpha = 0.3, width = 0.15, height = 0) +
   labs(
     title = "Change in Effort by Email Type",
     x = "Email Type",
