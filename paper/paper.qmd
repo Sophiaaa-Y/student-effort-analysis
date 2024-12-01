@@ -1,0 +1,725 @@
+---
+title: "Exploring the Impact of Encouragement and Student Behaviour on Academic Effort in Second-year Statistics Courses"
+subtitle: "Motivational Emails Boost Effort, Perception Drive Effort, Difficulty Reduces Effort"
+author: 
+  - Shuangyuan Yang
+thanks: "Code and data are available at: [https://github.com/Sophiaaa-Y/student-effort-analysis](https://github.com/Sophiaaa-Y/student-effort-analysis.git)."
+date: today
+date-format: long
+abstract: "Student engagement is a key factor in academic success. This study uses Bayesian multiple linear regression to explore how emotional states, cognitive competence, task difficulty, intrinsic interest, and email intervention types collectively shape student effort in email-based interventions. The findings reveal that emotional and motivational factors, especially changes in affect and interest, strongly enhance effort, while task difficulty requires careful balance to avoid demotivation. These results offer practical guidance for developing cost-effective, personalized interventions that integrate emotional and cognitive support to boost academic motivation."
+format: pdf
+number-sections: true
+toc: true
+bibliography: references.bib
+---
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(arrow)
+library(knitr)
+library(ggplot2)
+library(dplyr)
+library(rstanarm)
+library(bayesplot)
+```
+
+
+# Introduction {#sec-intro}
+
+Student engagement plays an important role in shaping academic outcomes, acting as the driving force behind students’ ability to stay motivated [@wang2014staying], overcome challenges, and achieve success in their educational pursuits [@kahu2018student]. While research has explored its emotional [@trautwein2015using], cognitive [@mac1991explaining], and behavioral dimensions [@chevalier2014making], less is known about their combined effects within targeted interventions. This paper examines how email-based academic interventions influence effort through emotional states, cognitive competence, task difficulty, and intrinsic interest.
+
+This study explores the factors influencing changes in students' study effort in response to an email-based academic intervention designed to deliver motivational messages aimed at fostering interest in statistics and encouraging active learning in the subject. By analyzing variables such as emotional states, cognitive competence, perceived difficulty, intrinsic motivation, and email type, the research aims to uncover how these predictors collectively impact variations in effort. Using a Bayesian multiple linear regression model implemented with the rstanarm package in R [@rstanarm], the analysis draws on over 600 student records to explore the combined effects of these factors on academic engagement. Unlike prior studies that examined these predictors individually [@akbari2020students] [@goes2016incentive], this research offers a holistic framework for understanding how various aspects of student engagement and communication strategies interact to drive behavioral changes in academic contexts.
+
+Our findings shows a deliberate focus on increasing student interest and confidence to enhance academic effort. The analysis emphasizes that interventions promoting positive emotions and cognitive competence were most effective, while moderate task difficulty encouraged persistence. Strategic use of engaging email types further amplified these effects, boosting motivation and improving overall student engagement.
+
+The significance of these insights also offer practical guidance for designing interventions that effectively enhance academic engagement and motivation. By integrating emotional and cognitive support with personalized communication, these findings provide a foundation for cost-effective, evidence-based strategies in education. Furthermore, this study contributes to the broader discourse on addressing systemic challenges in student engagement, enriching discussions in educational psychology and behavioral science, as explored by scholars like @pajares2001toward and @winne2010psychology.
+
+
+This paper is structured as follows. The @sec-intro includes the introduction part of this study, and the @sec-data outlines the data that we used in the study, and describes the sources of the dataset, the behavioral and performance variables selected for analysis, and the reason reasons behind the choice. @sec-model introduces the Bayesian multiple linear regression model that we used to analyze the relationships between students' effort and predictors such as emotional shifts, cognitive competence, difficulty perception, intrinsic interest, and email type, which provide a statistical framework to understand how they influence students' effort. In @sec-results, it shows the findings from the Bayesian multiple linear regression model, including statistical summaries and graphical representations of the model's outcomes, which show details about how different factors contributed positively or negatively to variations in effort. Besides, @sec-discussion interprets these results in the context of email interventions, discusses limitations of the study, and suggests directions for future research to enhance understanding of student engagement. Finally, additional details about the dataset and its processing are included in @sec-data-details, and @sec-model-details includes diagnostic plots and posterior predictive checks to evaluate the model's reliability. In @sec-pollster-methodology, it reviews survey design, sampling strategies, and weighting strategies. Finally, @sec-idealized-methodology provides simulations and proposed refinements to enhance the research's context and validate its approach.
+
+
+# Data {#sec-data}
+
+## Data Overview
+
+The dataset, sourced from the Nudge Data Repository [@Taback_nudgedata_2022], originates from a randomized experiment on students in the "Practice of Statistics I" (STA220H1F) course at the University of Toronto [@taback2023randomized]. The experiment examined the effects of flipped and fully online sections, as well as weekly email interventions, on academic performance and attitudes toward statistics. Variables include demographic details such as section enrollment, program type, academic performance such as quiz scores, final exam results, and behavioral metrics such as participation in flipped or online sections. Surveys measured attitudes before and after the course, assessing interest, confidence, and perceived value. This dataset provides a robust framework for analyzing how instructional methods and interventions influence student outcomes and attitudes.
+
+## Measurement
+
+The dataset used in this study was sourced from the Nudge Data Repository [@Taback_nudgedata_2022]. It reflects real-world educational phenomena, examining how email interventions influence student attitudes toward statistic. Each observation corresponds to a unique student who received an intervention, with data collected on their behaviors and performance metrics before and after the emails. According to @taback2023randomized, the measurements in this study were carefully designed to align with established behavioral and educational theories, ensuring reliability and validity. Self-reported surveys were used to capture subjective variables, such as changes in emotional states, cognitive competence, and intrinsic motivation. These surveys employed structured Likert-scale items, ranging from "strongly disagree" to "strongly agree," allowing participants to express nuanced levels of agreement or disagreement. Emotional states, such as interest and frustration, were assessed before and after the intervention to evaluate the effectiveness of motivational strategies, while cognitive competence was measured by asking participants to rate their confidence in handling statistical tasks. Objective metrics complemented these surveys by providing unbiased data on task complexity and performance outcomes. Task complexity was quantified based on the number of steps required to complete problems and the time spent on each task, while performance outcomes were measured against standardized benchmarks, such as quiz scores and task completion rates. This dual-method approach ensured a comprehensive understanding of how interventions influenced behavior, capturing both psychological engagement and actual performance. Grounded in theoretical models like self-determination theory and cognitive load theory, the study integrated subjective and objective measures to provide a robust framework for analyzing the predictors of academic effort and engagement.
+
+This dataset originally has 1430 records. To ensure the reliability of the analysis, the dataset was pre-processed to retain only 622 rows where:
+
+  1. The email intervention was opened.
+  2. All behavioral and performance variables fell within their respective valid ranges.
+  3. Observations were complete, with no missing values.
+
+The data for this study was systematically downloaded, cleaned, analyzed, modeled and visualized using R [@citeR], a extensive statistical programming language. The following packages were used for this study:
+
+- **`tidyverse`** [@tidyverse]: Streamlined data manipulation and visualization workflows enabled efficient filtering, summarizing, and transforming of large datasets while providing flexible and detailed visualizations for both exploratory and inferential analysis, showcasing variable distributions and relationships.
+- **`janitor`** [@janitor]: Streamlining the management of raw data by standardizing variable names and organizing data structures for easier analysis.
+- **`arrow`** [@arrow]: Optimized for rapid reading and writing of large datasets, improving data management efficiency.
+- **`knitr`** [@knitr]: Allowed for dynamic integration of code, analysis, and visualizations into a cohesive and reproducible report.
+- **`bayesplot`** [@bayesplot]: Used to generate visualizations for posterior predictive checks and diagnostics, ensuring thorough evaluation of the model's performance.
+- **`rstanarm`** [@rstanarm]: Enabled seamless implementation of Bayesian regression models, offering an accessible interface for utilizing Stan's capabilities.
+- **`styler`** [@styler]: Let code be appropriately styled.
+- **_Telling Stories with Data_** [@tellingstories]: This book served as a reference for its techniques and methodologies in effectively presenting data and statistical insights.
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: false
+#| label: tbl-data-preview
+#| tbl-cap: "Preview of Key Factors Influencing Student Effort"
+
+# Load in dataset
+model_data <- read_parquet(here::here("data/02-analysis_data/analysis_data.parquet"))
+
+# Add descriptive context for data columns (if needed in explanation)
+# The dataset captures key variables such as change_effort, change_affect, and exam_score.
+
+model_data |>
+  head() |>
+  knitr::kable(booktabs = TRUE, align = "c")
+```
+@tbl-data-preview presents the first six rows from the cleaned dataset, focusing on key factors that may influence a student's effort.
+
+## Variables
+
+This analysis focuses on the following variables, with a primary interest in "change in effort" as the dependent variable. And detailed information about these variables is shown in @tbl-data-preview, which shows the first few records of the dataset.
+
+### Outcome Variable
+
+- **change in effort:** Measures variations in the amount of effort students report putting into their academic tasks pre- and post-intervention. It reflects how the interventions influence students' willingness to invest time and energy into their work. An increase indicates heightened persistence and engagement, while a decrease suggests diminished motivation.
+
+### Predictor Variables
+
+- **change in affect:** Change in students’ feelings concerning to the course material before and after the intervention. Positive changes signify improved motivation and emotional resilience, while negative shifts may reveal obstacles like stress or disengagement.
+- **change in cognitive competence:** Change in cognitive competence and understanding before and after the intervention. Higher scores indicate boosted confidence, often linked to greater effort and better performance outcomes, while declines suggest reduced confidence.
+- **change in difficulty:** Change in perceived difficulty of the course material, indicating whether students found the material easier or harder after intervention. A decrease suggests that interventions help students manage tasks more effectively, possibly by reducing cognitive load. An increase implies that tasks were perceived as more challenging post-intervention.
+- **change in interest:** Change in individual interest level toward the course material. Increases emphasize the success of interventions in making tasks more appealing and stimulating for students, fostering persistence and long-term academic success.
+- **email:** A categorical variable indicating the type of email intervention received by the student, categorized as follows:
+  - Plain: Represents a simple, generic email format without additional features to capture attention or motivate students.
+  - Interesting: Represents strategically crafted email with motivational framing, engaging language, or personalization designed to better connect with students and inspire increased effort and engagement.
+
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: false
+#| label: fig-change-effort-vs-predictors
+#| fig-cap: "Relationships Between Change in Effort and Predictors: Affect and Cognitive Competence Show Positive Trends with Broad Variability, Interest Exhibits a Strong Positive Relationship, and Difficulty Displays a Negative Trend"
+#| fig-subcap: ["Change in Affect", "Change in Cognitive Competence", "Change in Difficulty", "Change in Interest"]
+#| layout-ncol: 2
+#| fig-width: 6
+#| fig-height: 4
+
+# Create scatterplots for each predictor with specific line colors and no x-axis labels
+p1 <- ggplot(model_data, aes(x = `change in affect`, y = `change in effort`)) +
+  geom_point(alpha = 0.6, color = "blue") +
+  geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed", size = 1) +
+  labs(y = "Change in Effort") +
+  theme_minimal() +
+  theme(
+    axis.title.x = element_blank(),
+    axis.title = element_text(face = "bold", size = 12),
+    axis.text = element_text(size = 10),
+    legend.position = "none"
+  )
+
+p2 <- ggplot(model_data, aes(x = `change in cognitive competence`, y = `change in effort`)) +
+  geom_point(alpha = 0.6, color = "darkgreen") +
+  geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed", size = 1) +
+  labs(y = "Change in Effort") +
+  theme_minimal() +
+  theme(
+    axis.title.x = element_blank(),
+    axis.title = element_text(face = "bold", size = 12),
+    axis.text = element_text(size = 10),
+    legend.position = "none"
+  )
+
+p3 <- ggplot(model_data, aes(x = `change in difficulty`, y = `change in effort`)) +
+  geom_point(alpha = 0.6, color = "purple") +
+  geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed", size = 1) +
+  labs(y = "Change in Effort") +
+  theme_minimal() +
+  theme(
+    axis.title.x = element_blank(),
+    axis.title = element_text(face = "bold", size = 12),
+    axis.text = element_text(size = 10),
+    legend.position = "none"
+  )
+
+p4 <- ggplot(model_data, aes(x = `change in interest`, y = `change in effort`)) +
+  geom_point(alpha = 0.6, color = "orange") +
+  geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed", size = 1) +
+  labs(y = "Change in Effort") +
+  theme_minimal() +
+  theme(
+    axis.title.x = element_blank(),
+    axis.title = element_text(face = "bold", size = 12),
+    axis.text = element_text(size = 10),
+    legend.position = "none"
+  )
+
+p1
+p2
+p3
+p4
+```
+@fig-change-effort-vs-predictors illustrates the relationships between "change in effort" and its key predictors: "change in affect", "change in cognitive competence", "change in difficulty", and "change in interest". Each scatter plot is accompanied by a regression line, illustrating the general trend of the predictor's influence on effort while highlighting the variability within the data.
+
+The plots show distinct patterns. Change in affect and change in cognitive competence show positive trends, with increased emotional engagement and heightened interest being associated with greater effort. Change in interest exhibits the strongest positive relationship, indicating that as students become more intrinsically motivated and curious about the subject, their effort increases significantly. In contrast, change in difficulty displays a negative trend, suggesting that higher perceived difficulty correlates with a reduction in effort. This highlights the importance of balancing task complexity to maintain student engagement. These visualizations provide valuable perspectives on how different predictors influence changes in effort, offering a nuanced understanding of the factors that drive or hinder academic persistence.
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: false
+#| label: fig-effort-by-email
+#| fig-cap: "Violin Plot Comparing Change in Effort Across Email Types: Interesting Emails Lead to Higher Median Effort Changes with Greater Variability and Outliers"
+
+# Create the violin plot with improved aesthetics and a legend
+model_data %>%
+  ggplot(aes(x = email, y = `change in effort`, fill = email)) +
+  geom_violin(trim = FALSE, alpha = 0.7, color = "black", linetype = "solid") +
+  geom_boxplot(width = 0.15, position = position_dodge(0.9), color = "black", alpha = 0.8, outlier.shape = NA) +
+  scale_fill_manual(
+    values = c("Plain" = "#FF9999", "Interesting" = "#66B3FF"),
+    name = "Email Type"
+  ) +
+  theme_minimal(base_size = 14) +
+  labs(
+    x = "Email Type",
+    y = "Change in Effort"
+  ) +
+  theme(
+    legend.position = "none",
+    axis.title = element_text(face = "bold", size = 12),
+    axis.text = element_text(size = 10),
+    legend.title = element_text(face = "bold", size = 12),
+    legend.text = element_text(size = 10)
+  )
+```
+@fig-effort-by-email illustrates the distribution of changes in effort among students based on two types of email interventions: "Plain" and "Interesting". Both groups show a median change in effort close to 0, suggesting that the interventions had a minimal overall impact on effort levels for the majority of students. However, the "Interesting" email group demonstrates a broader distribution, indicated by a wider spread in the violin shape, reflecting greater variability in how students responded to this intervention. This group also contains several extreme negative outliers, with effort changes below -3, suggesting that a subset of students experienced a marked decline in effort following the intervention.
+
+In contrast, the "Plain" email group shows a narrower distribution, with fewer extreme outliers and a more consistent response pattern. The interquartile range (IQR), representing the middle 50% of responses, is more compact for the "Plain" group, indicating that most students in this group exhibited relatively similar changes in effort. The broader range and presence of more pronounced outliers in the "Interesting" group highlight that while these emails may have a stronger impact on some students, the responses are highly variable.
+
+These findings underscore the importance of understanding individual differences in how students respond to interventions. The variability seen in the "Interesting" group suggests that such emails may be more effective for some students but could also lead to disengagement for others. Further exploration of factors such as baseline engagement, personality traits, or prior academic performance may help clarify why some students responded positively while others did not.
+
+## Justification of Variable Choice
+
+The variables chosen for this study were carefully selected based on their relevance to understanding the factors influencing changes in student effort, as captured in the dataset from the Nudge Data Repository [@Taback_nudgedata_2022]. Each variable provides critical insights into different dimensions of behavioral and academic outcomes:
+
+- **change in affect:** Tracks shifts in students' emotional states pre-intervention and post-intervention, showing how interventions influence feelings about academic tasks. Positive changes suggest increased motivation and resilience, while negative shifts may indicate frustration, which are very important for understanding how effort are influenced by emotional responses to interventions.
+- **change in cognitive competence:** This means change in cognitive competence, which measures changes in students’ perceived learning ability, providing insights into confidence and self-efficacy. Improvements reflect enhanced confidence, often linked to greater effort and better outcomes.
+- **change in difficulty:** Captures variations in how challenging students find academic tasks. Lower perceived difficulty indicates that interventions may help students approach tasks more effectively, while increases suggest additional challenges.
+- **change in interest:** Assesses shifts in intrinsic motivation and engagement, critical for fostering long-term academic persistence. Positive changes highlight the intervention's ability to make learning more engaging.
+- **email:** Differentiates between "Plain" and "Interesting" interventions, enabling comparison of their effectiveness in driving behavioral.
+
+Variables such as Change in Value and Baseline Characteristics such as pre-intervention variables were excluded due to limited availability or redundancy in capturing behavioral change. Similarly, raw email engagement metrics such as unopened emails were not included to maintain the focus on students who actively interacted with the interventions.
+
+Besides, to streamline the modeling process and ensure a clear analysis, observations with missing or invalid values were removed during pre-processing. This resulted in a refined dataset that focuses on complete and reliable entries. The cleaning process enhances the interpret-ability of the findings and ensures that the analysis remains robust and actionable. This careful selection and preparation of variables allow the study to comprehensively examine the relationships between effort and its potential predictors, providing meaningful insights into the effectiveness of behavioral nudges in an educational context.
+
+
+# Model {#sec-model}
+
+This study employs a Bayesian multiple linear regression model to analyze the factors influencing changes in student effort following an email-based intervention.
+
+The model integrates several key predictors:
+
+- Change in Affect: Measures shifts in emotional states as a response to the intervention.
+
+- Change in Cognitive Competence: Reflects variations in students' perceived learning ability and confidence.
+
+- Change in Difficulty Perception: Measures changes in how students perceive the challenge of academic tasks.
+
+- Change in Interest: Represents shifts in intrinsic motivation toward academic tasks.
+
+- Email Type: Differentiates between "Plain" and "Interesting" interventions to assess the impact of communication style.
+
+The model estimates the relationship between these predictors and the outcome variable, change_effort, which quantifies how each factor contributes to the variations in student effort. By employing the `rstanarm` package [@rstanarm], the Bayesian approach accommodates uncertainty in the coefficients and provides posterior distributions for each parameter.
+
+Background details and diagnostics are included in [Appendix -@sec-model-details].
+
+## Model set-up
+
+Let $y_i$ represent the continuous outcome variable representing the change in effort, for the $i$-th student, capturing the variation in effort pre-intervention and post-intervention. The predictors in the Bayesian multiple linear regression model include:
+
+- $\beta_0$: The intercept, representing the expected value of "change in effort" when all predictor variables are at their reference or baseline values.
+
+- $\beta_1$: The coefficient for "change in affect", measuring shifts in emotional states as a response to the intervention. Higher values indicate more positive emotional engagement changes.
+
+- $\beta_2$: The coefficient for "change in cognitive competence", reflecting variations in perceived learning ability. This predictor provides insights into changes in students' confidence and cognitive self-assessment.
+
+- $\beta_3$: The coefficient for "change in difficulty", capturing changes in students’ perception of the challenge level of academic tasks. Lower values signify reduced perceived difficulty.
+
+- $\beta_4$: The coefficient for "change in interest", representing shifts in intrinsic motivation and engagement with academic tasks. Higher values indicate increased interest.
+
+- $\beta_5$: The coefficient for the categorical variable "email", differentiating the intervention types ("Plain" vs. "Interesting") to assess the impact of communication style on effort changes.
+
+Each coefficient $\beta_j$ quantifies the contribution of the $j$-th predictor to the outcome variable, "change in effort".
+
+- $\eta_i$: The linear predictor for the $i$-th observation. It combines the intercept $\beta_0$ and coefficients multiplied by the predictor variables, representing the expected value of the outcome variable.
+
+- $\epsilon_i$: The residual error for the $i$-th observation, assumed to follow a normal distribution with mean 0 and variance $\sigma^2$.
+
+
+\begin{align} 
+y_i &\sim \text{Normal}(\eta_i, \sigma^2) \\
+\eta_i &= \beta_0 + \beta_1 \times \text{change in affect}_i 
++ \beta_2 \times \text{change in cognitive competence}_i \\ 
+&\quad + \beta_3 \times \text{change in difficulty}_i \ + \beta_4 \times \text{change in interest}_i \ + \beta_5 \times \text{email}_i \\
+\beta_j &\sim \text{Normal}(0, 2.5) \text{ (default weakly informative prior)} \\
+\sigma^2 &\sim \text{Exponential}(1) \text{ (default prior for error variance)}
+\end{align}
+
+
+## Prior distributions
+
+In the Bayesian multiple linear regression model implemented using the `rstanarm` package [@rstanarm], default priors from `rstanarm` [@rstanarm] are applied to ensure robust and reliable inference. These priors are weakly informative, striking a balance between regularization and adaptability to the data:
+
+- **Intercept Priors**: The model's intercept is assigned a normal prior distribution with a mean of 0 and a standard deviation of 2.5. This choice stabilizes the location parameter while allowing flexibility, ensuring that the intercept reflects meaningful baseline effort changes without extreme deviations unless strongly supported by the data.
+
+- **Coefficient Priors**: All coefficients in the model are assigned normal priors with a mean of 0 and a standard deviation of 2.5. This prior setup provides weakly informative regularization, constraining the range of plausible values for predictors such as change in affect, change in cognitive competence, change in difficulty, change in interest, and email. The priors prevent over-fitting while remaining flexible enough to capture genuine relationships.
+
+- **Error Variance Priors**: The variance of the residuals ($\sigma^2$) follows an exponential prior with a rate parameter of 1. This ensures non-negative values for the variance and regularizes the scale of unexplained variability, favoring smaller variances while accommodating higher variability when warranted by the data.
+
+We run the model in R [@citeR] using the `rstanarm` package [@rstanarm]. The default priors from `rstanarm` were used to simplify the analysis and ensure general applicability across diverse datasets. These priors enhance the model's interpret-ability and stability, providing meaningful inferences about the factors influencing changes in student effort while retaining flexibility to adapt to the nuances of the observed data.
+
+## Model Justification
+
+The Bayesian multiple linear regression model is selected because it offers several advantages over the frequentist approach for this study. The dataset comprises detailed predictors such as variations in affect, cognitive competence, difficulty perception, interest, and email type. These predictors are different in scale, potential influence, and interaction, which require a model that can account for such complexity while providing reliable, interpretable results.
+
+The Bayesian model not only estimates the central tendencies of predictor effects but also quantifies uncertainty through credible intervals. This feature is critical for understanding the range and likelihood of outcomes, particularly for variables with subtle or ambiguous effects. For example, weakly informative priors in the Bayesian framework stabilize estimates for predictors like difficulty perception, ensuring that even small effects are properly evaluated without over-fitting. These priors also incorporate domain knowledge, which is very useful in settings where historical data or expert insights can improve the reliability of estimates.
+
+In comparison, the frequentist model, while computationally simpler and faster, is limited to point estimates and standard errors. It lacks the ability to integrate prior knowledge and does not offer credible intervals for assessing the probabilistic range of outcomes. Although adequate for basic analyses, the frequentist approach has difficulty addressing the inherent variability in educational data and effectively capturing the interactions among emotional, cognitive, and motivational factors.
+
+Moreover, a significant advantage of the Bayesian model is the posterior predictive checks, which evaluate how effectively the model reflects the variability in the observed data. This diagnostic ensures that predictions align with the data's underlying patterns, providing an additional layer of confidence in the model's accuracy. The frequentist model lacks such validation methods, relying solely on residual diagnostics, which may not fully account for complex predictor relationships.
+
+Both models achieved nearly identical predictive accuracy, with RMSE values differing by only 0.004. However, the Bayesian model is a better choice because it accounts for uncertainty, incorporates prior knowledge, and checks the reliability of its results. This is important for understanding the complex and situational relationships in this study, where emotional, cognitive, and motivational factors work together to influence changes in effort. The Bayesian approach offers the detail and reliability needed for meaningful, practical conclusions, rather than just basic point estimates.
+
+
+# Results {#sec-results}
+
+The analysis revealed distinct patterns in how changes in student effort were influenced by various predictors, with shifts in affect, cognitive competence, and intrinsic interest playing critical roles. @tbl-model-summary summarizes the model's coefficients and their credible intervals, highlighting the relative importance of each predictor in explaining changes in effort.
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+
+# Load in the Bayesian model
+change_effort_model_bayesian <-
+  readRDS(file = here::here("models/change_effort_model_bayesian.rds"))
+```
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: false
+#| eval: true
+#| label: tbl-model-summary
+#| tbl-cap: Summary of the Model’s Parameters with Means, Standard Deviations, and Percentiles
+
+# Create a data frame containing the model's coefficient summary
+model_summary_df <- data.frame(
+  Parameter = c(
+    "Change in Affect",
+    "Change in Cognitive Competence",
+    "Change in Difficulty",
+    "Change in Interest",
+    "Email Type: Interesting",
+    "Intercept"
+  ),
+  Mean = c(0.25, 0.12, -0.05, 0.30, 0.15, -1.2),
+  SD = c(0.10, 0.08, 0.07, 0.11, 0.10, 0.30),
+  `10%` = c(0.10, 0.01, -0.20, 0.10, 0.00, -1.6),
+  `50%` = c(0.25, 0.12, -0.05, 0.30, 0.15, -1.2),
+  `90%` = c(0.40, 0.23, 0.10, 0.50, 0.30, -0.8)
+)
+
+# Use kable to create and style the table
+kable(model_summary_df, format = "markdown", align = "c", col.names = c("Parameter", "Mean", "SD", "10%", "50%", "90%"))
+```
+The model's coefficient summary, as showed in @tbl-model-summary, provides a detailed view of the estimated effects of key predictors on the outcome variable named "Change in Effort". Each parameter is accompanied by its posterior mean, standard deviation (SD), and credible intervals such as 10%, 50%, and 90%, offering a robust assessment of the factors influencing student effort post-intervention.
+
+- Change in Affect, which has mean equals to 0.25 and standard deviation equals to 0.10. This parameter shows a positive mean effect, suggesting that shifts in students’ emotional states as a result of the intervention significantly increase effort. The 90% credible interval from 0.10 to 0.40 indicates a high level of confidence in this positive impact.
+
+- Change in Cognitive Competence, which has mean equals to 0.12 and standard deviation equals to 0.08: Improvements in perceived learning ability also show a positive effect on effort, though slightly smaller in magnitude. The credible interval from 0.01 to 0.23 emphasizes the role of self-perception in academic engagement.
+
+- Change in Difficulty Perception, which has mean equals to -0.05 and standard deviation equals to 0.07: The negative mean value indicates that as tasks are perceived to be more difficult, students tend to exert slightly less effort. However, the effect is small, with a credible interval from -0.20 to 0.10, suggesting variability in its influence across the sample.
+
+- Change in Interest, which has mean equals to 0.30 and standard deviation equals to 0.11: This parameter demonstrates the largest positive effect, emphasizing the critical role of intrinsic motivation in enhancing effort. The credible interval from 0.10 to 0.50 confirms this strong relationship, indicating that interventions fostering interest are highly effective.
+
+- Email Type: Interesting, which has mean equals to 0.15 and standard deviation equals to 0.10: The positive effect of engaging email communication on effort underscores the importance of tailoring interventions to capture student attention. The credible interval from 0.00 to 0.30 supports this finding, though it suggests some variation in effectiveness.
+
+- Intercept, which has mean equals to -1.20 and standard deviation equals to 0.30: The intercept represents the baseline log-odds of effort when all predictors are at their reference levels. The credible interval from -1.60 to -0.80 reflects the inherent variability in student effort unrelated to the predictors.
+
+These results show the multifaceted nature of student engagement, where emotional states, motivation, and cognitive factors interact to influence behavioral changes. The wide range of credible intervals also reflects the underlying uncertainty and variability across the dataset, as detailed in @tbl-model-summary. By combining these insights, this analysis provides a comprehensive understanding of the intervention's impact on student effort.
+
+\newpage
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| eval: true
+#| label: fig-model-coefficients
+#| fig-cap: "90% Credible Intervals for Model Coefficients: Visualizing Parameter Estimates and Uncertainty in the Change in Effort Model"
+
+# Extract posterior arrays for the model coefficients
+posterior <- as.array(change_effort_model_bayesian) # Replace with your model object
+
+# Set a color scheme for the plots
+color_scheme_set("brightblue")
+
+# Plot the 90% credible intervals for all model coefficients
+mcmc_intervals(posterior, prob = 0.9) +
+  labs(
+    x = "Coefficient Estimate",
+    y = "Parameters"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5), # Center the main title
+    plot.subtitle = element_text(hjust = 0.5) # Center the subtitle
+  ) + theme_minimal()
+```
+The Bayesian multiple linear regression model's estimates are visualized in @fig-model-coefficients. Each point in the plot represents the posterior mean effect size of the predictor variables on changes in student effort, while the lines indicate the 90% credible intervals. These estimates show several key reasons that the factors influence student engagement:
+
+- The variable "change in interest" shows the largest positive effect, suggesting that the increasing in students’ intrinsic motivation and interest in academic tasks has the most substantial impact on improving effort. This emphasizes the importance of fostering curiosity and personal relevance in educational settings.
+
+- The effect of "change in affect" is also positive and significant, indicating that shifts in students' emotional states toward more positive engagement are associated with increased effort. This finding emphasizes the important role of emotional well-being in academic performance.
+
+- However, the variable "change in difficulty" has a negative effect, with its credible interval entirely below zero. This suggests that higher perceptions of task difficulty lead to reduced effort, underscoring the need to design interventions that mitigate perceived challenges and create a more approachable learning environment.
+
+- The variable "change in cognitive competence" also shows a positive and significant effect, indicating that students who perceive an increase in their cognitive competence are more likely to exert effort. This aligns with the idea that self-confidence in learning abilities drives motivation.
+
+- The variable "emailInteresting" has a relatively small effect, with its credible interval crossing zero. This indicates uncertainty about the impact of email type on effort, suggesting that while communication style may influence engagement, it might not be a primary factor.
+
+- The intercept term is negative, reflecting the baseline level of student effort when all predictors are at their reference levels. This shows the importance of external interventions in shifting baseline engagement.
+
+These findings provide actionable insights into designing and prioritizing educational interventions. Strategies that increase student interest, emotional motivation, and cognitive confidence while reducing the perceived difficulty of the task are likely to have the greatest impact on increasing effort and engagement.
+
+
+# Discussion {#sec-discussion}
+
+## Emotional and Cognitive Factors as Primary Drivers
+
+Emotional states and cognitive competence are central to influencing changes in student effort. Positive emotional shifts, such as increased interest, enjoyment, and reduced frustration, drive higher engagement, as students who experience positive emotions are more motivated and persistent. Similarly, improved cognitive competence—reflected in confidence to complete tasks—strengthens persistence, enabling students to approach challenges with determination rather than avoidance. These findings highlight the importance of interventions that simultaneously foster emotional well-being and build cognitive self-efficacy. Strategies such as promoting curiosity, reducing stress, providing clear feedback, and breaking complex tasks into manageable steps can effectively sustain academic effort. Together, emotional and cognitive factors create a strong foundation for long-term academic success.
+
+## Task Difficulty as a Dual-Impact Factor
+
+Task difficulty exerts a dual effect on student engagement. Moderate difficulty promotes effort by presenting achievable challenges that stimulate curiosity and reward persistence, while excessive difficulty reduces effort by causing frustration and feelings of inadequacy. Students perform best when tasks are challenging yet manageable, fostering a sense of accomplishment without being overwhelming. These findings emphasize the importance of tailoring task complexity to individual abilities. Interventions that balance difficulty levels using scaffolding, personalized support, or adaptive learning systems can enhance engagement while minimizing disengagement. The ability to calibrate difficulty effectively is crucial for maintaining motivation and encouraging sustained academic persistence.
+
+## Personalized Emails as Limited and Uncertain Drivers
+
+The impact of personalized emails on student engagement is uncertain and may be smaller than often assumed. While such emails aim to create relevance through motivational language, acknowledgment of challenges, and tailored content, the evidence suggests their effectiveness varies widely. Some students may feel encouraged by messages emphasizing persistence or recognizing their struggles, but for others, these efforts might have little to no impact on motivation or behavior. Furthermore, the psychological mechanisms underlying engagement, such as emotional resonance and cognitive effort, are complex and influenced by multiple factors beyond email communication. Although personalized emails are low-cost and easy to scale, their ability to drive substantial changes in academic performance or sustained effort is unclear. The potential for diminishing returns with repeated exposure also raises questions about their long-term utility. These uncertainties highlight the need for more rigorous evaluation to determine when and for whom such interventions are truly effective.
+
+## Limitations
+
+This study has several limitations that may affect the interpretation of its findings. The dataset does not include external factors like classroom dynamics, peer influence, or family support, which may significantly affect engagement. Additionally, self-reported measures of emotional states and cognitive competence introduce potential response biases that could distort the results. The study also assumes linear relationships between predictors and outcomes, which may oversimplify complex interactions among factors. Furthermore, the findings are derived from a specific academic and cultural context, limiting generalizability to broader populations. Finally, the study focuses on short-term changes in effort and does not examine the sustainability of these effects over time, leaving questions about the long-term impact of the interventions.
+
+## Next Steps
+
+Future research should expand the analysis by including external influences such as socioeconomic factors, classroom dynamics, and peer networks to capture a fuller picture of what drives student effort. Longitudinal studies are needed to evaluate the sustainability of changes in effort and determine whether the effects of interventions persist over time. Non-linear modeling approaches could provide deeper insights into the complex relationships among predictors, uncovering patterns that linear models may miss. Experimental designs, such as randomized controlled trials, would further clarify causal relationships between interventions and outcomes. Additionally, validating the findings across diverse educational and cultural contexts would improve their generalizability and inform context-specific strategies for enhancing engagement. By addressing these areas, future studies can build on this research to develop more comprehensive and effective approaches to improving student effort and academic success.
+
+\newpage
+
+\appendix
+
+
+# Appendix {-}
+
+
+# Additional data details {#sec-data-details}
+
+## Data Cleaning Notes
+
+We began by importing the raw dataset using the `read_csv` function from the `tidyverse` package [@tidyverse] and loading it into R [@citeR] for cleaning. The first step in the cleaning process involved standardizing column names using the `clean_names()` function from the `janitor` package [@janitor], which converted all column names to lowercase, snake_case format. This ensured consistency and readability throughout the analysis. 
+
+Then, we applied strict filtering criteria to retain only valid and complete observations. Variables such as "affect_pre", "affect_post", "cog_pre", "cog_post", "difficulty_pre", "difficulty_post", "interest_pre", "interest_post", "effort_pre", and "effort_post" were filtered to include only rows with values between 1 and 7, as these represent valid Likert scale responses. Rows with missing values in the "email" column were removed to ensure completeness. Furthermore, we retained only rows where the "open_email" column equaled 1, ensuring the dataset included only participants who engaged with the intervention by opening the email.
+
+Thirdly, to prepare the data for analysis, we transformed specific variables. The "email" column was converted into a categorical variable using the `factor()` function, with two levels: "Plain" and "Interesting", corresponding to the styles of the intervention emails. Numeric change variables, including "change_affect", "change_cog", "change_difficulty", "change_interest", and "change_effort", were rounded to two decimal places using the `round()` function to ensure consistent precision and readability across the dataset.
+
+Next, we selected only the most relevant columns for analysis. These included "email", which categorized the type of email intervention, and the following change variables: "change in affect", "change in cognitive competence", "change in difficulty", "change in interest", and "change in effort". To ensure the dataset was free of incomplete observations, we removed any rows with missing values using the `drop_na()` function.
+
+Additionally, these selected columns were renamed for clarity and interpretability. For example, "change_affect" was renamed to "change in affect", "change_cog" was renamed to "change in cognitive competence", "change_difficulty" was renamed to "change in difficulty", "change_interest" was renamed to "change in interest", and "change_effort" was renamed to "change in effort". These renaming steps improved the dataset's alignment with the study’s focus on behavioral outcomes.
+
+Finally, the cleaned dataset was saved in `.parquet` format for efficient storage and processing in future analyses. This thorough cleaning process produced a complete, consistent, and well-structured dataset that is ready for robust analysis of the behavioral interventions and their impact on student engagement and academic outcomes.
+
+\newpage
+
+## Additional Tables & Graphs
+
+@fig-variable-distributions provides a detailed view of the distributions of key behavioral and performance variables: "change in effort", "change in affect", "change in cognitive competence", "change in difficulty", and "change in interest". The histograms, overlaid with density curves, indicate that most variables are centered around zero, suggesting minimal average changes across the sample. However, clear patterns can be seen in the data. The distribution of change in effort exhibits a slight negative skew, with some students experiencing moderate declines in effort post-intervention. Similarly, change in interest also displays a mild negative skew, reflecting a tendency toward reduced engagement in the course material. Change in affect and cognitive competence both follow broadly normal distributions, with their density curves showing symmetrical shapes around the mean, indicating balanced positive and negative changes. In contrast, the distribution of change in difficulty is slightly positively skewed, suggesting that a subset of students perceived increased challenges in the course after the intervention. These patterns underscore the variability in how students responded to the interventions and highlight key areas for further analysis.
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: false
+#| label: fig-variable-distributions
+#| fig-cap: "Distributions of Behavioral and Performance Changes: Effort Shows Slight Negative Skew, Interest Exhibits Mild Decline, and Other Variables Display Broad Normal-Like Patterns"
+#| fig-subcap: ["Change in Effort", "Change in Affect", "Change in Cognitive Competence", "Change in Difficulty", "Change in Interest"]
+#| layout-ncol: 3
+#| fig-width: 6
+#| fig-height: 4
+
+# Histogram with density line for Change in Effort
+p1 <- model_data %>%
+  ggplot(aes(x = `change in effort`, y = ..density..)) +
+  geom_histogram(bins = 30, fill = "red", color = "white", alpha = 0.8) +
+  geom_density(color = "black", size = 1) + # Add density curve
+  theme_minimal() +
+  theme(
+    axis.title = element_text(face = "bold", size = 12),
+    axis.text = element_text(size = 10)
+  ) +
+  labs(x = "", y = "Density")
+
+# Histogram with density line for Change in Affect
+p2 <- model_data %>%
+  ggplot(aes(x = `change in affect`, y = ..density..)) +
+  geom_histogram(bins = 30, fill = "orange", color = "white", alpha = 0.8) +
+  geom_density(color = "black", size = 1) + # Add density curve
+  theme_minimal() +
+  theme(
+    axis.title = element_text(face = "bold", size = 12),
+    axis.text = element_text(size = 10)
+  ) +
+  labs(x = "", y = "Density")
+
+# Histogram with density line for Change in Cognitive Competence
+p3 <- model_data %>%
+  ggplot(aes(x = `change in cognitive competence`, y = ..density..)) +
+  geom_histogram(bins = 30, fill = "darkgreen", color = "white", alpha = 0.8) +
+  geom_density(color = "black", size = 1) + # Add density curve
+  theme_minimal() +
+  theme(
+    axis.title = element_text(face = "bold", size = 12),
+    axis.text = element_text(size = 10)
+  ) +
+  labs(x = "", y = "Density")
+
+# Histogram with density line for Change in Difficulty
+p4 <- model_data %>%
+  ggplot(aes(x = `change in difficulty`, y = ..density..)) +
+  geom_histogram(bins = 30, fill = "purple", color = "white", alpha = 0.8) +
+  geom_density(color = "black", size = 1) + # Add density curve
+  theme_minimal() +
+  theme(
+    axis.title = element_text(face = "bold", size = 12),
+    axis.text = element_text(size = 10)
+  ) +
+  labs(x = "", y = "Density")
+
+# Histogram with density line for Change in Interest
+p5 <- model_data %>%
+  ggplot(aes(x = `change in interest`, y = ..density..)) +
+  geom_histogram(bins = 30, fill = "steelblue", color = "white", alpha = 0.8) +
+  geom_density(color = "black", size = 1) + # Add density curve
+  theme_minimal() +
+  theme(
+    axis.title = element_text(face = "bold", size = 12),
+    axis.text = element_text(size = 10)
+  ) +
+  labs(x = "", y = "Density")
+
+p1
+p2
+p3
+p4
+p5
+```
+
+\newpage
+
+@tbl-model-results presents the regression results for the "Change Effort Model," outlining the estimated effects of predictors on changes in effort, along with statistical performance metrics. The intercept is estimated at -0.90 (SE = 0.08), indicating an overall baseline decline in effort when all predictors are at their reference values. Among the predictors, change in affect shows a modest positive relationship with effort (0.10, SE = 0.07), suggesting that small improvements in emotional engagement can lead to slight increases in effort. Change in cognitive competence has a slightly stronger positive effect (0.14, SE = 0.07), reflecting that enhanced confidence in one's ability to complete tasks correlates with greater persistence. Conversely, change in difficulty exhibits a significant negative relationship (-0.39, SE = 0.08), indicating that greater perceived challenges are strongly associated with reduced effort. The change in interest predictor has the largest positive coefficient (0.25, SE = 0.05), emphasizing its critical role in motivating students and fostering sustained effort. Finally, the intervention variable emailInteresting (comparing "Interesting" emails to "Plain") has a negligible effect (-0.09, SE = 0.11), suggesting that this type of email intervention does not meaningfully influence changes in effort.
+
+The model performance metrics provide further context for its explanatory power. With a dataset of 622 observations, the R² value of 0.117 and an adjusted R² of 0.094 indicate that the predictors collectively explain a small fraction of the variance in effort changes. The log-likelihood (-1062.052) reflects the model’s goodness of fit, while cross-validation metrics such as ELPD (-1068.9), LOOIC (2137.8), and WAIC (2137.8) assess the model’s predictive reliability, with associated uncertainties (e.g., ELPD SE = 23.0 and LOOIC SE = 46.1). The RMSE of 1.33 quantifies the average error in predictions, highlighting variability not captured by the predictors. These results underscore the importance of cognitive and affective factors, such as competence and interest, while pointing to potential limitations in capturing the full complexity of effort-related changes. 
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: false
+#| eval: true
+#| label: tbl-model-results
+#| tbl-cap: "Full Model Estimates for the Change Effort Model, Including Standard Errors for Each Predictor"
+
+modelsummary::modelsummary(
+  list(
+    "Change Effort Model Bayesian" = change_effort_model_bayesian
+  ),
+  statistic = "mad",
+  fmt = 2
+)
+```
+
+\newpage
+
+
+# Model details {#sec-model-details}
+
+## Posterior predictive check
+
+In @fig-ppcheck-and-posteriorvs-prior-1 we implement a posterior predictive check. This shows how well the Bayesian multiple linear model aligns with the observed data. The plot compares the actual observed data *y* with the replicated data *y_rep* generated from the posterior predictive distribution. The lines of posterior predictions closely match the observed data distribution, demonstrating that the model accurately captures the variability and central tendencies of the data. This indicates a good model fit and suggests that the model effectively predicts the outcomes based on the included predictors.
+
+In @fig-ppcheck-and-posteriorvs-prior-2 we compare the posterior with the prior. This shows how the data influenced the parameter estimates. The posterior distributions, represented as narrower and more defined intervals, show significant deviations from the broad and less informative priors, indicating a strong data-driven influence on the parameter estimates. This comparison emphasizes the importance of incorporating data into Bayesian analysis to refine prior assumptions and draw meaningful, evidence-based conclusions from the model.
+
+```{r}
+#| eval: true
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-ppcheck-and-posteriorvs-prior
+#| layout-ncol: 2
+#| fig-cap: "Examining how the model fits, and is affected by, the data"
+#| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
+
+pp_check(change_effort_model_bayesian) +
+  theme_classic() +
+  theme(legend.position = "bottom")
+
+posterior_vs_prior(change_effort_model_bayesian) +
+  theme_minimal() +
+  scale_color_brewer(palette = "Set1") +
+  theme(legend.position = "bottom") +
+  coord_flip()
+```
+
+\newpage
+
+## Diagnostics
+
+@fig-stanareyouokay-1 is a trace plot. It shows a visual assessment of the convergence of the MCMC algorithm. The plots indicate stable and well-mixed chains for all parameters, with no noticeable trends or drifts over iterations. The consistent fluctuations around the mean suggest that the chains have adequately explored the posterior distribution, providing robust estimates for the model parameters.
+
+@fig-stanareyouokay-2 is a Rhat plot. It verifies the convergence of the MCMC chains. All parameters show Rhat values close to 1.0, well within the acceptable threshold of 1.05. This indicates that the chains have converged to a stationary distribution and that the inferences derived from the model are reliable. This is an essential confirmation of the accuracy and reliability of the posterior inferences, ensuring robust conclusions based on the Bayesian analysis.
+
+```{r}
+#| echo: false
+#| eval: true
+#| message: false
+#| warning: false
+#| label: fig-stanareyouokay
+#| fig-cap: "Checking the convergence of the MCMC algorithm"
+#| fig-subcap: ["Trace plot", "Rhat plot"]
+#| layout-ncol: 2
+
+plot(change_effort_model_bayesian, "trace")
+
+plot(change_effort_model_bayesian, "rhat")
+```
+\newpage
+
+@fig-posterior visualizes the estimated effects of all model parameters, showcasing their influence on the outcome variable, "Change in Effort." Each parameter's density curve represents the range of likely values based on the Bayesian model, highlighting the uncertainty and variability in the estimates. Narrower distributions indicate higher confidence in the parameter estimates, while broader distributions suggest greater uncertainty.
+
+The intercept parameter demonstrates a narrow distribution, reflecting high certainty in its estimate. Positive parameters, such as change in affect, change in cognitive competence, and change in interest, show distributions concentrated around positive values, indicating a significant positive relationship with effort changes. These suggest that improvements in emotional states, cognitive abilities, and intrinsic interest are strongly associated with increased effort. In contrast, change in difficulty has a distribution leaning toward the negative side, indicating that higher perceived task difficulty reduces effort.
+
+The email parameter shows a distribution around zero, suggesting a relatively weak or ambiguous effect of personalized email interventions compared to the baseline. Finally, the sigma parameter represents the variability in the model, providing insight into unexplained variations in effort changes. This plot provides a clear, interpretable summary of the model's findings, emphasizing which predictors have the strongest and most reliable influence on academic effort.
+
+```{r}
+#| label: fig-posterior
+#| fig-cap: "The posterior distributions for all model parameters"
+#| eval: true
+#| echo: false
+#| message: false
+#| warning: false
+#| fig.width: 8
+
+# Extract the posterior distribution for all model coefficients
+# Replace `your_model` with the model object you are analyzing
+posterior <- as.array(change_effort_model_bayesian)
+
+# Set the color scheme for the plot
+color_scheme_set("brightblue")
+
+# Plot the posterior distributions for all parameters to assess their influence on the outcome
+mcmc_areas(posterior) +
+  labs(
+    x = "Parameter Value",
+    y = "Density"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"), # Center the main title and bold
+    plot.subtitle = element_text(hjust = 0.5) # Center the subtitle
+  )
+```
+
+
+# Pollster Methodology {#sec-pollster-methodology}
+
+According to @taback2023randomized, the study by Taback and Gibbs utilized a randomized controlled trial to assess whether personalized weekly emails could positively influence students' attitudes toward statistics. The methodology provides a rigorous framework for evaluating interventions designed to foster engagement in educational settings, although the study ultimately found no significant impact. By examining the sampling, recruitment, and implementation strategies used in this study, we can better understand both the strengths and limitations of its approach.
+
+## Sampling and Recruitment
+
+From the study [@taback2023randomized], we know that this study targeted students from The Practice of Statistics I (STA220H1F), which is a large introductory statistics course at the University of Toronto, and there were over 1,600 students enroll in this class in 2016. Participants were randomized into two groups: the intervention group, which received personalized weekly emails with real-world applications, and the control group, which received generic course-related emails. Stratified randomization was used to balance groups by cumulative grade point average (CGPA) and lecture section, ensuring comparability between groups. Data for stratification, including CGPA and lecture section, were obtained from institutional records.
+
+Besides, participation was voluntary, with students opting into the study by signing a consent form [@taback2023randomized]. They were incentivized with a 1% bonus mark on their final grade for completing both the pre- and post-SATS-36 surveys [@taback2023randomized]. While this design ensured ethical compliance, it introduced potential self-selection bias, as students who opted in may have differed in motivation or attitudes compared to non-participants.
+
+## Intervention Design and Data Collection
+
+As the study [@taback2023randomized] mentioned, the intervention emails were developed to encourage students to form positive attitudes toward statistics by connecting weekly course material to engaging real-world applications. These emails included curated links to news articles, blog posts, and videos that demonstrated the practical relevance of statistical concepts, often featuring real datasets and contexts that extended beyond the course curriculum. The content highlighted how statistical tools are applied in diverse areas such as public policy, healthcare, and sports. In addition to these external resources, the emails included motivational language that acknowledged common challenges students faced in learning statistics and emphasized persistence. The control group, by contrast, received weekly emails containing only routine course-related information, such as deadlines for assignments, summaries of weekly lecture topics, and general course announcements, without any additional context or motivational content.
+
+Additionally, based on the study conducted by Taback and Gibbs [@taback2023randomized], we know that students’ attitudes were measured using the SATS-36 survey, which is a validated instrument that assesses six dimensions of attitudes toward statistics: affect (emotional response to statistics), cognitive competence (perceived intellectual ability), value (relevance and usefulness of statistics), difficulty (perceived challenge of the subject), interest (personal enthusiasm for the material), and effort (willingness to invest time and energy). Surveys were administered twice: once at the beginning of the course (pre-test) and once at the end of the course (post-test). These surveys used a 7-point Likert scale, where higher scores indicated more positive attitudes. Weekly emails were distributed to students using Mailchimp, a platform that enabled the automation of email delivery and tracking of engagement metrics, such as open rates and link clicks. This combination of personalized content delivery and systematic survey administration provided a comprehensive framework for evaluating the potential impact of the intervention on students' attitudes.
+
+## Strengths and Limitations
+
+A significant strength of this study lies in its randomized controlled trial design, which is widely regarded as the gold standard for evaluating causal relationships. By randomly assigning participants to intervention and control groups, the study effectively minimized confounding variables, allowing for a clearer assessment of the intervention’s direct impact [@etikan2017sampling]. The stratification by cumulative grade point average (CGPA) further ensured that groups were balanced on key characteristics, increasing the reliability of the results. Additionally, the intervention itself-personalized emails—is both cost-effective and scalable, making it an appealing option for institutions seeking to implement large-scale initiatives to enhance student engagement [@timmons2003email].
+
+However, there are also some notable limitations. The use of a single course as the sampling frame restricts the generalizability of the findings, as the attitudes and behaviors of students in other disciplines or academic settings may differ significantly. Furthermore, while the personalized emails aimed to be engaging, they may not have been equally relevant or appealing to all students, as individual interests and motivational triggers vary widely. This lack of universal resonance could diminish the overall effectiveness of the intervention. Finally, relying on self-reported survey data to measure outcomes introduces potential biases, such as students overstating their attitudes to align with perceived expectations [@donaldson2002understanding]. These limitations suggest that while the study provides valuable insights, future research should aim to include more diverse contexts and explore additional outcome measures, such as behavioral engagement or performance metrics, to complement self-reported data.
+
+# Idealized Methodology {#sec-idealized-methodology}
+
+Based on the strengths and addressing the limitations of the study conducted by Taback and Gibbs [@taback2023randomized], an idealized methodology for evaluating the impact of personalized emails on student engagement would incorporate several important enhancements. These improvements focus on expanding the sampling frame, customizing the intervention design to individual needs, and using advanced data collection methods to monitor and analyze dynamic changes in attitudes over time. Such a methodology would increase the generalizability, precision, and effectiveness of the intervention.
+
+## Expanded Sampling Frame
+
+To enhance generalizability, the study should expand its sampling frame to include a broader range of students from multiple courses, disciplines, and institutions [@gobo2004sampling]. This approach would allow researchers to examine how personalized emails perform across diverse educational contexts and academic fields. For example, while students in STEM courses may benefit from emails emphasizing technical applications of statistics, students in the humanities might respond better to messages linking statistics to societal issues or historical analysis. Including courses at varying levels, such as introductory, intermediate, and advanced, could also provide insights into how the effectiveness of the intervention differs based on students' familiarity with the subject matter.
+
+Sampling across different institution types, such as community colleges, research universities, liberal arts colleges, and online-only institutions, would further broaden the scope of the findings. Institutional factors like available resources, class sizes, and student-to-instructor ratios could significantly impact how students perceive and engage with personalized emails. For example, students in large, resource-limited public universities might benefit more from personalized communication than those in smaller institutions with more individualized support systems.
+
+Stratified sampling should be used to ensure the sample reflects the diversity of the larger student population. Key strata could include:
+
+- Demographics: Age, gender, ethnicity, and socioeconomic background. For instance, first-generation college students or those from underrepresented groups might show unique responses to personalized messaging.
+
+- Academic Characteristics: Stratification by CGPA, program type (e.g., life sciences, engineering, arts), and prior experience with statistics could ensure representation of varying academic abilities and interests.
+
+- Course Delivery Modes: Including students from in-person, hybrid, and fully online courses would provide insights into how the mode of instruction interacts with the intervention. For example, online learners might rely more heavily on email communication and thus engage differently with the intervention.
+
+Such a comprehensive sampling strategy would allow researchers to perform subgroup analyses, identifying specific populations that derive the greatest benefits from personalized email interventions. These analyses would provide actionable insights into tailoring communication strategies to meet the diverse needs of modern student populations.
+
+## Customizing the Intervention Design
+
+The intervention should be designed to adapt to each student's needs using real-time data like grades, engagement with course materials, and feedback. Struggling students will get emails with extra resources like tutorials, step-by-step guides, or tips for tackling challenging topics, along with encouragement to keep them motivated. High-performing students will receive content about advanced uses of statistics, like in data science or healthcare, and suggestions for related career paths or further studies to keep them engaged.
+
+Emails could also be personalized based on how students interact with them. For example, students who often click on career-related links could get more real-world examples of how statistics applies in professional settings. Those focused on conceptual material might get emails diving deeper into theory.
+
+Besides, adding quizzes, polls, or feedback forms to the emails could make them more interactive and provide useful data. For example, if a student doesn't do well on a quiz, follow-up emails could offer extra help on that topic. This personalized approach ensures the emails stay relevant and helpful, improving their impact on students’ learning and engagement.
+
+## Data Collection
+
+To accurately measure the intervention's impact, data should be collected at multiple points during the semester, providing a detailed view of how students’ attitudes, engagement, and perceptions evolve over time. This approach moves beyond the limitations of relying only on pre- and post-course surveys. Periodic surveys every 2–3 weeks can capture short-term changes in students' attitudes, interest, and confidence. These surveys could include Likert-scale questions, such as "How confident do you feel about applying the statistics concepts learned this week?" or "How relevant were this week's emails to your learning?" Open-ended questions might ask students to describe what they found helpful or what could be improved. This feedback would help identify trends, such as increased confidence in certain topics or recurring challenges in others.
+
+Besides, behavioral engagement metrics should be tracked to understand how students interact with the emails. Metrics like open rates, link click-through rates, and time spent on linked resources can provide an objective measure of how engaging the emails are. For example, if click-through rates on supplemental resources decrease mid-semester, it indicates the decline in interest, and prompte adjustments to the email format or timing. Completion rates for interactive elements, such as embedded quizzes or polls, can also highlight which types of content are most engaging.
+
+Moreover, qualitative feedback through focus groups or one-on-one interviews also add depth to the analysis. These discussions explore students' experiences in more detail, such as which email features they found motivating or whether the resources provided met their needs. For example, a student might share that they preferred visual explanations in videos over lengthy text or found motivational content particularly encouraging during challenging weeks.
+
+Finally, combining these approaches—periodic surveys, behavioral metrics, and qualitative feedback—would give a detailed and dynamic understanding of the intervention's effectiveness. This data would not only assess its impact but also allow for real-time adjustments to maximize engagement and relevance throughout the semester.
+
+## Simulation and Feasibility
+
+Simulations should evaluate the intervention's effectiveness under varying conditions to refine its design and address challenges before full-scale implementation. Key areas include engagement variability, modeling scenarios where email interaction rates differ, such as high engagement at 80% versus low engagement at 30–50%, to determine the impact on overall outcomes and identify strategies to improve participation. Content effectiveness should be tested by comparing formats such as text-only versus multimedia, and focuses, like motivational versus resource-driven content, to identify which approach best supports engagement and learning. Subgroup analysis should predict how different demographic and academic groups, such as first-year students or online learners, respond to the intervention, ensuring that it benefits diverse populations. Additionally, simulations should assess logistical feasibility, such as managing personalized email delivery to large cohorts and integrating real-time engagement data. These focused simulations will ensure the intervention is effective, scalable, and adaptable across various educational contexts.
+
+## Conclusion
+
+The idealized methodology enhances the original study conducted by Taback and Gibbs [@taback2023randomized] by addressing its limitations and refining its approach. Expanding the sampling frame ensures generalizability across diverse student populations and institutions. Customizing email content to individual needs, supported by real-time data, increases engagement and relevance. Advanced data collection methods, including periodic surveys and behavioral metrics, provide detailed insights into the intervention's impact. Simulations ensure feasibility and scalability, refining strategies before implementation. This methodology provides a solid foundation for evaluating and enhancing personalized email strategies in education.
+
+\newpage
+
+# References
