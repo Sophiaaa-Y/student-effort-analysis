@@ -183,11 +183,14 @@ The plots show distinct patterns. Change in affect and change in cognitive compe
 #| label: fig-effort-by-email
 #| fig-cap: "Violin Plot Comparing Change in Effort Across Email Types: Interesting Emails Lead to Higher Median Effort Changes with Greater Variability and Outliers"
 
-# Create the violin plot with improved aesthetics and a legend
+# Create the violin plot with improved aesthetics, a legend, and outliers
 model_data %>%
   ggplot(aes(x = email, y = `change in effort`, fill = email)) +
   geom_violin(trim = FALSE, alpha = 0.7, color = "black", linetype = "solid") +
-  geom_boxplot(width = 0.15, position = position_dodge(0.9), color = "black", alpha = 0.8, outlier.shape = NA) +
+  geom_boxplot(
+    width = 0.15, position = position_dodge(0.9), color = "black",
+    alpha = 0.8, outlier.shape = 16, outlier.size = 2, outlier.color = "black"
+  ) +
   scale_fill_manual(
     values = c("Plain" = "#FF9999", "Interesting" = "#66B3FF"),
     name = "Email Type"
