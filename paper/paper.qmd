@@ -246,7 +246,7 @@ The model integrates several key predictors:
 
 - Email Type: Differentiates between "Plain" and "Interesting" interventions to assess the impact of communication style.
 
-The model estimates the relationship between these predictors and the response variable, change_effort, which quantifies how each factor contributes to the variations in student effort. By employing the `rstanarm` package [@rstanarm], the Bayesian approach accommodates uncertainty in the coefficients and provides posterior distributions for each parameter.
+The model estimates the relationship between these predictors and the response variable, change in effort, which quantifies how each factor contributes to the variations in student effort. By employing the `rstanarm` package [@rstanarm], the Bayesian approach accommodates uncertainty in the coefficients and provides posterior distributions for each parameter.
 
 Background details and diagnostics are included in [Appendix -@sec-model-details].
 
