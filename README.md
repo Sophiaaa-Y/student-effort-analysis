@@ -1,4 +1,4 @@
-# Exploring the Impact of Encouragement and Student Behaviour on Academic Effort in Second-year Statistics Courses
+# Student Affort Analysis
 
 
 ## Overview
