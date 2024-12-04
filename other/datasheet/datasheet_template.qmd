@@ -1,6 +1,6 @@
 ---
 title: "Datasheet for 'Nudge Data Repository dataset'"
-subtitle: "A Randomized Study to Evaluate the Effect of a Nudge via Weekly Emails on Students’ Attitudes Toward Statistics"
+subtitle: "A Randomized Research to evaluate the Impacts of Weekly Email Nudges on Students' Attitudes Toward Statistics"
 author: 
   - Shuangyuan Yang
 thanks: "Code and data are available at: [https://github.com/Sophiaaa-Y/student-effort-analysis](https://github.com/Sophiaaa-Y/student-effort-analysis.git)."
@@ -52,7 +52,7 @@ Extracted from the questions outlined in @gebru2021datasheets, this datasheet wa
 	- Each instance consists of structured data capturing student-level information, including demographic details (e.g., program type, section enrollment), academic performance metrics (e.g., quiz scores, final exam results), and behavioral variables (e.g., participation in flipped or online sections). Additionally, it includes survey-based measures of attitudes toward statistics, such as affect, interest, and perceived difficulty, both before and after the intervention, as well as details of email interventions received. This data is derived from course records, randomized experiment logs, and self-reported survey responses.
 	
 5. *Is there a label or target associated with each instance? If so, please provide a description.*
-	- Yes. Each instance includes labels capturing the target variable, "change in effort," representing variations in student engagement. Supplementary labels include changes in affect, cognitive competence, difficulty, and interest, reflecting shifts in attitudes and behaviors post-intervention.
+	- Yes. Each instance includes labels capturing the target variable, "change in effort", representing variations in student engagement. Supplementary labels include changes in affect, cognitive competence, difficulty, and interest, reflecting shifts in attitudes and behaviors post-intervention.
 	
 6. *Is any information missing from individual instances? If so, please provide a description, explaining why this information is missing (for example, because it was unavailable). This does not include intentionally removed information, but might include, for example, redacted text.*
 	- Yes. When pooling pre- and post-surveys, 23 missing data patterns were identified. The most common pattern (19% of students) involved completing all pre-SATS-36 items but none of the post-SATS-36 items, while another pattern (2% of students) involved completing all pre-SATS-36 components but only partial post-SATS-36 items. The remaining 21 patterns each accounted for less than 2% of students. These occur may due to non-responses or incomplete participation by students during data collection.
@@ -145,7 +145,7 @@ Extracted from the questions outlined in @gebru2021datasheets, this datasheet wa
 	- The dataset has been used in academic projects focused on understanding the impact of personalized email nudges on student engagement and attitudes. These studies have provided new insights into the role of digital interventions in shaping educational outcomes and have been presented in academic forums and publications [@taback2023randomized].
 	
 2. *Is there a repository that links to any or all papers or systems that use the dataset? If so, please provide a link or other access point.*
-	- The dataset is associated with research conducted by the University of Toronto’s Department of Statistical Sciences. Relevant analyses, code, and findings are documented in the GitHub repository: [Nudge Data Repository](https://github.com/ntaback/nudgedata).
+	- The dataset is associated with research conducted by the Department of Statistical Sciences at the University of Toronto. Relevant analyses, code, and findings are documented in the GitHub repository: [Nudge Data Repository](https://github.com/ntaback/nudgedata).
 	
 3. *What (other) tasks could the dataset be used for?*
 	- This dataset could be applied to a variety of tasks, including:
@@ -189,10 +189,10 @@ Extracted from the questions outlined in @gebru2021datasheets, this datasheet wa
 **Maintenance**
 
 1. *Who will be supporting/hosting/maintaining the dataset?*
-	- The dataset will be maintained by the research team at the University of Toronto’s Department of Statistical Sciences. They are responsible for ensuring its continued availability and quality.
+	- The research team at the University of Toronto's Department of Statistical Sciences will maintain the dataset. They are responsible for ensuring its continued availability and quality.
 	
 2. *How can the owner/curator/manager of the dataset be contacted (for example, email address)?*
-	- The dataset can be accessed and inquiries directed through the project‘s GitHub repository at [Nudge Data Repository](https://github.com/ntaback/nudgedata). Contact information for the research team is also provided within the repository.
+	- The dataset can be accessed and inquiries directed through the project's GitHub repository at [Nudge Data Repository](https://github.com/ntaback/nudgedata). Contact information for the research team is also provided within the repository.
 	
 3. *Is there an erratum? If so, please provide a link or other access point.*
 	- Any corrections or updates to the dataset will be documented in the GitHub repository [Nudge Data Repository](https://github.com/ntaback/nudgedata), where the dataset is stored, ensuring transparency and accessibility.
