@@ -3,7 +3,7 @@
 
 ## Overview
 
-This GitHub Repository includes all materials used to generate the paper *Exploring the Impact of Encouragement and Student Behaviour on Academic Effort in Second-year Statistics Courses*. The research examines how task complexity, intrinsic motivation, emotional states, cognitive competence, and types of email interventions influence changes in student effort following an email-based intervention. The findings emphasize the importance of balancing task difficulty to prevent demotivation while showing that emotional and motivational factors, particularly enhanced cognitive competence and increased intrinsic interest, significantly increase student effort. The repository provides a comprehensive framework for data analysis, modeling, and reporting using Bayesian statistical methods, and the data is obtained from [Nudge Data Repository](https://github.com/ntaback/nudgedata.git).
+This repository contains all data, R scripts, and materials necessary for generating and reproducing the analysis for *Exploring the Impact of Encouragement and Student Behaviour on Academic Effort in Second-year Statistics Courses*. The research investigates the effects of task complexity, intrinsic motivation, emotional states, cognitive competence, and email intervention types on changes in student effort. The repository provides a comprehensive framework for data analysis, modeling, and reporting using Bayesian statistical methods, and the data is obtained from [Nudge Data Repository](https://github.com/ntaback/nudgedata.git).
 
 
 ## File Structure
