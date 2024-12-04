@@ -43,7 +43,7 @@ This paper is structured as follows. The @sec-intro includes the introduction pa
 
 # Data {#sec-data}
 
-## Data Overview
+## Data Source
 
 The dataset, sourced from the Nudge Data Repository [@Taback_nudgedata_2022], originates from a University of Toronto "Practice of Statistics I" (STA220H1F) randomized experiment on 1430 students [@taback2023randomized]. Flipped and fully online sections and weekly email interventions were tested on academic performance and attitudes toward statistics. This dataset contains coded CGPA, exam scores, course grades, behavioral factors like online versus in-class participation, email interaction, and demographic data like gender and year of study. At the start and end of the semester, questionnaires are collected to assess affective, cognitive, and value-based attitudes to the course to track improvements. This dataset examines how teaching approaches and interventions like weekly email nudges effect students' academic outcomes, engagement, and attitudes throughout a semester.
 
